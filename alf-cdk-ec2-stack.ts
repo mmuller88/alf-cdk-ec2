@@ -14,7 +14,7 @@ export interface AlfCdkEc2StackProps extends StackProps {
 
 export class AlfCdkEc2Stack extends CustomStack {
   constructor(scope: Construct, id: string, props: AlfCdkEc2StackProps) {
-    super(scope, id);
+    super(scope, id, props);
 
     const amznLinux = MachineImage.latestAmazonLinux({
       generation: AmazonLinuxGeneration.AMAZON_LINUX,
@@ -55,7 +55,7 @@ sudo chown -R 999 logs
 
 --//
   `
-    var instanceVpc;
+    let instanceVpc;
     if(props.vpc){
       instanceVpc = Vpc.fromVpcAttributes(this, 'defaultVPC', {
         availabilityZones: props.vpc.availabilityZones,
@@ -108,7 +108,7 @@ sudo chown -R 999 logs
     const lb = new ApplicationLoadBalancer(this, 'LB', {
       vpc: instanceVpc,
       internetFacing: true,
-      securityGroup: securityGroup
+      securityGroup
     });
 
     const listener = lb.addListener('Listener', {
