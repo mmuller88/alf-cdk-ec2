@@ -62,25 +62,7 @@ sudo chown -R 999 logs
         vpcId: props.vpc.vpcId
       })
     }else{
-      instanceVpc = new Vpc(this, 'VPC', {
-        subnetConfiguration: [
-          {
-            cidrMask: 24,
-            name: 'ingress',
-            subnetType: SubnetType.PUBLIC,
-          },
-          // {
-          //   cidrMask: 24,
-          //   name: 'application',
-          //   subnetType: ec2.SubnetType.PRIVATE,
-          // },
-          // {
-          //   cidrMask: 28,
-          //   name: 'rds',
-          //   subnetType: ec2.SubnetType.ISOLATED,
-          // }
-       ]
-      });
+      instanceVpc = new Vpc(this, 'VPC');
     }
 
     const securityGroup = new SecurityGroup(this, 'alfSecurityGroup', {
