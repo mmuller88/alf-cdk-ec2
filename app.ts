@@ -10,6 +10,9 @@ const pipelineAppProps: PipelineAppProps = {
   customStack: (scope, account) => {
     // console.log('echo = ' + JSON.stringify(account));
     return new AlfCdkEc2Stack(scope, `${name}-${account.stage}`, {
+      env: {
+        region: account.region,
+      },
       stackName: `${name}-${account.stage}`,
       stage: account.stage,
     })
