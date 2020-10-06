@@ -17,6 +17,7 @@ const pipelineAppProps: PipelineAppProps = {
       stage: account.stage,
     })
   },
+  destroyStack: true,
   testCommands: (_) => [
     // Use 'curl' to GET the given URL and fail if it returns an error
     'sleep 180',
