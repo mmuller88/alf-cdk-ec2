@@ -78,7 +78,7 @@ cdkdeployprod: cdkclean cdkbuild buildprod
 
 .PHONY: cdksynthprod
 cdksynthprod: cdkclean cdkbuild buildprod
-	cdk synth '$(FUNCTION_NAME)-prod' --profile damadden88 && mv cdk.out ../cdk.out
+	cdk synth '$(FUNCTION_NAME)-prod' --profile damadden88
 
 .PHONY: cdkdestroyprod
 cdkdestroyprod: cdkclean cdkbuild buildprod
