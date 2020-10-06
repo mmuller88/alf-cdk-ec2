@@ -82,7 +82,6 @@ sudo chown -R 999 logs
           // }
        ]
       });
-      });
     }
 
     const securityGroup = new SecurityGroup(this, 'alfSecurityGroup', {
