@@ -1,7 +1,7 @@
 import { Vpc, MachineImage, AmazonLinuxStorage, AmazonLinuxVirt, AmazonLinuxEdition, AmazonLinuxGeneration, SecurityGroup, Peer, Port, InstanceType, InstanceProps, InstanceClass, InstanceSize, UserData, Instance } from '@aws-cdk/aws-ec2';
 import { StackProps, CfnOutput, Construct} from '@aws-cdk/core';
 import { ApplicationProtocol, ApplicationLoadBalancer } from '@aws-cdk/aws-elasticloadbalancingv2';
-import { IpTarget } from '@aws-cdk/aws-elasticloadbalancingv2-targets';
+import { InstanceIdTarget } from '@aws-cdk/aws-elasticloadbalancingv2-targets';
 import { CustomStack } from 'alf-cdk-app-pipeline/custom-stack';
 
 export interface AlfCdkEc2StackProps extends StackProps {
@@ -99,7 +99,7 @@ sudo chown -R 999 logs
     })
 
     listener.addTargets('Target', {
-      targets: [new IpTarget(instance.instanceId)],
+      targets: [new InstanceIdTarget(instance.instanceId)],
       protocol: ApplicationProtocol.HTTP,
       port: 80,
     });
