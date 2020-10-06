@@ -17,12 +17,11 @@ const pipelineAppProps: PipelineAppProps = {
       stage: account.stage,
     })
   },
-  testCommands: (account) => [
+  testCommands: (_) => [
     // Use 'curl' to GET the given URL and fail if it returns an error
     'sleep 180',
     'curl -Ssf $InstancePublicDnsName',
     'echo done!!!',
-    `make cdkdestroy${account.stage}`,
   ],
 };
 
