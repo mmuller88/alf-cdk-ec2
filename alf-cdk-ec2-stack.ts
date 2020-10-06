@@ -63,7 +63,7 @@ sudo chown -R 999 logs
       })
     }else{
       instanceVpc = new Vpc(this, 'VPC', {
-        maxAzs: 1,
+        maxAzs: 2,
         subnetConfiguration: [
           {
             cidrMask: 24,
