@@ -1,16 +1,20 @@
 import { Vpc, MachineImage, AmazonLinuxStorage, AmazonLinuxVirt, AmazonLinuxEdition, AmazonLinuxGeneration, SecurityGroup, Peer, Port, InstanceType, InstanceProps, InstanceClass, InstanceSize, UserData, Instance, SubnetType } from '@aws-cdk/aws-ec2';
-import { Stack, App, StackProps, CfnOutput} from '@aws-cdk/core';
-import { ApplicationProtocol, InstanceTarget, ApplicationLoadBalancer } from '@aws-cdk/aws-elasticloadbalancingv2';
+import { StackProps, CfnOutput, Construct} from '@aws-cdk/core';
+import { ApplicationProtocol, ApplicationLoadBalancer } from '@aws-cdk/aws-elasticloadbalancingv2';
+import { IpTarget } from '@aws-cdk/aws-elasticloadbalancingv2-targets';
+import { CustomStack } from 'alf-cdk-app-pipeline/custom-stack';
 
 export interface AlfCdkEc2StackProps extends StackProps {
-  instance?: {
-    vpcId?: string
+  stage: string;
+  vpc?: {
+    vpcId: string;
+    availabilityZones: string[];
   }
 }
 
-class AlfCdkEc2Stack extends Stack {
-  constructor(app: App, id: string, props?: AlfCdkEc2StackProps) {
-    super(app, id);
+export class AlfCdkEc2Stack extends CustomStack {
+  constructor(scope: Construct, id: string, props: AlfCdkEc2StackProps) {
+    super(scope, id);
 
     const amznLinux = MachineImage.latestAmazonLinux({
       generation: AmazonLinuxGeneration.AMAZON_LINUX,
@@ -52,9 +56,10 @@ sudo chown -R 999 logs
 --//
   `
     var instanceVpc;
-    if(props?.instance?.vpcId){
-      instanceVpc = Vpc.fromLookup(this, 'defaultVPC', {
-        vpcId: props?.instance.vpcId || ''
+    if(props.vpc){
+      instanceVpc = Vpc.fromVpcAttributes(this, 'defaultVPC', {
+        availabilityZones: props.vpc.availabilityZones,
+        vpcId: props.vpc.vpcId
       })
     }else{
       instanceVpc = new Vpc(this, 'VPC', {
@@ -112,31 +117,27 @@ sudo chown -R 999 logs
     })
 
     listener.addTargets('Target', {
-      targets: [new InstanceTarget(instance.instanceId)],
+      targets: [new IpTarget(instance.instanceId)],
       protocol: ApplicationProtocol.HTTP,
       port: 80,
     });
 
-    new CfnOutput(this, 'InstanceId', {
+    const instanceId = new CfnOutput(this, 'InstanceId', {
       value: instance.instanceId
     });
 
-    new CfnOutput(this, 'InstancePublicDnsName', {
+    this.cfnOutputs['InstanceId'] = instanceId;
+
+    const instancePublicDnsName = new CfnOutput(this, 'InstancePublicDnsName', {
       value: instance.instancePublicDnsName
     });
 
-    new CfnOutput(this, 'LoadBalancerDnsName', {
+    this.cfnOutputs['InstancePublicDnsName'] = instancePublicDnsName;
+
+    const loadBalancerDnsName = new CfnOutput(this, 'LoadBalancerDnsName', {
       value: lb.loadBalancerDnsName
     });
+
+    this.cfnOutputs['LoadBalancerDnsName'] = loadBalancerDnsName;
   }
 }
-
-const app = new App();
-new AlfCdkEc2Stack(app, 'AlfCdkEc2Stack', {
-  env: {
-    account: '981237193288',
-    region: 'us-east-1'
-  }
-});
-
-app.synth();
