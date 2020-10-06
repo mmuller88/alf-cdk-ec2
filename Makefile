@@ -78,15 +78,11 @@ cdkdeployprod: cdkclean cdkbuild buildprod
 
 .PHONY: cdkdestroyprod
 cdkdestroyprod: cdkclean cdkbuild
-	yes | cdk destroy '$(FUNCTION_NAME)-prod' --profile damadden88 || true
+	yes | cdk destroy '$(FUNCTION_NAME)-prod' --profile damadden88
 
 .PHONY: cdksynthprod
 cdksynthprod: cdkclean cdkbuild buildprod
 	cdk synth '$(FUNCTION_NAME)-prod' --profile damadden88
-
-.PHONY: cdkdestroyprod
-cdkdestroyprod: cdkclean cdkbuild buildprod
-	cdk destroy '$(FUNCTION_NAME)-prod' --profile damadden88 --require-approval never
 
 .PHONY: cdkpipelinediff
 cdkpipelinediff: check-env cdkclean cdkbuild
