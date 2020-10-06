@@ -1,4 +1,4 @@
-import { Vpc, MachineImage, AmazonLinuxStorage, AmazonLinuxVirt, AmazonLinuxEdition, AmazonLinuxGeneration, SecurityGroup, Peer, Port, InstanceType, InstanceProps, InstanceClass, InstanceSize, UserData, Instance } from '@aws-cdk/aws-ec2';
+import { Vpc, MachineImage, AmazonLinuxStorage, AmazonLinuxVirt, AmazonLinuxEdition, AmazonLinuxGeneration, SecurityGroup, SubnetType, Peer, Port, InstanceType, InstanceProps, InstanceClass, InstanceSize, UserData, Instance } from '@aws-cdk/aws-ec2';
 import { StackProps, CfnOutput, Construct} from '@aws-cdk/core';
 import { ApplicationProtocol, ApplicationLoadBalancer } from '@aws-cdk/aws-elasticloadbalancingv2';
 import { InstanceIdTarget } from '@aws-cdk/aws-elasticloadbalancingv2-targets';
@@ -62,7 +62,27 @@ sudo chown -R 999 logs
         vpcId: props.vpc.vpcId
       })
     }else{
-      instanceVpc = new Vpc(this, 'VPC');
+      instanceVpc = new Vpc(this, 'VPC', {
+        maxAzs: 1,
+        subnetConfiguration: [
+          {
+            cidrMask: 24,
+            name: 'ingress',
+            subnetType: SubnetType.PUBLIC,
+          },
+          // {
+          //   cidrMask: 24,
+          //   name: 'application',
+          //   subnetType: ec2.SubnetType.PRIVATE,
+          // },
+          // {
+          //   cidrMask: 28,
+          //   name: 'rds',
+          //   subnetType: ec2.SubnetType.ISOLATED,
+          // }
+       ]
+      });
+      });
     }
 
     const securityGroup = new SecurityGroup(this, 'alfSecurityGroup', {
