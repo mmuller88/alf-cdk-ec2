@@ -42,6 +42,7 @@
     ]
   },
   "exclude": [
-    "cdk.out"
+    "cdk.out",
+    "node_modules"
   ]
 }
