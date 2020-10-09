@@ -1,14 +1,22 @@
 import { Vpc, MachineImage, AmazonLinuxStorage, AmazonLinuxVirt, AmazonLinuxEdition, AmazonLinuxGeneration, SecurityGroup, SubnetType, Peer, Port, InstanceType, InstanceProps, InstanceClass, InstanceSize, UserData, Instance } from '@aws-cdk/aws-ec2';
-import { StackProps, CfnOutput, Construct} from '@aws-cdk/core';
+import { StackProps, CfnOutput, Construct,} from '@aws-cdk/core';
 import { ApplicationProtocol, ApplicationLoadBalancer } from '@aws-cdk/aws-elasticloadbalancingv2';
 import { InstanceIdTarget } from '@aws-cdk/aws-elasticloadbalancingv2-targets';
 import { CustomStack } from 'alf-cdk-app-pipeline/custom-stack';
+import { ARecord, HostedZone, RecordTarget } from '@aws-cdk/aws-route53';
+import { LoadBalancerTarget } from '@aws-cdk/aws-route53-targets';
 
 export interface AlfCdkEc2StackProps extends StackProps {
+  gitRepo?: string;
   stage: string;
-  vpc?: {
-    vpcId: string;
-    availabilityZones: string[];
+  stackName: string;
+  // tags?: string[];
+  lb?: {
+    certArn: string
+  },
+  customDomain?: {
+    hostedZoneId: string,
+    domainName: string,
   }
 }
 
@@ -45,8 +53,8 @@ Content-Disposition: attachment; filename="userdata.txt"
 #!/bin/bash
 echo "sudo halt" | at now + 55 minutes
 yum -y install git
-REPO=alf-cdk-ec2
-git clone https://@github.com/mmuller88/$REPO /usr/local/$REPO
+REPO=${props.gitRepo ? props.gitRepo : 'alf-cdk-ec2'}
+git clone https://@github.com/mmuller88/$REPO/usr/local/$REPO
 cd /usr/local/$REPO
 chmod +x init.sh && ./init.sh
 sudo chmod +x start.sh && ./start.sh
@@ -56,36 +64,30 @@ sudo chown -R 999 logs
 --//
   `
     let instanceVpc;
-    if(props.vpc){
-      instanceVpc = Vpc.fromVpcAttributes(this, 'defaultVPC', {
-        availabilityZones: props.vpc.availabilityZones,
-        vpcId: props.vpc.vpcId
-      })
-    }else{
-      instanceVpc = new Vpc(this, 'VPC', {
-        maxAzs: 2,
-        subnetConfiguration: [
-          {
-            cidrMask: 24,
-            name: 'ingress',
-            subnetType: SubnetType.PUBLIC,
-          },
-          // {
-          //   cidrMask: 24,
-          //   name: 'application',
-          //   subnetType: ec2.SubnetType.PRIVATE,
-          // },
-          // {
-          //   cidrMask: 28,
-          //   name: 'rds',
-          //   subnetType: ec2.SubnetType.ISOLATED,
-          // }
-       ]
-      });
-    }
-
+    instanceVpc = new Vpc(this, 'VPC', {
+      maxAzs: 2,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'ingress',
+          subnetType: SubnetType.PUBLIC,
+        },
+        // {
+        //   cidrMask: 24,
+        //   name: 'application',
+        //   subnetType: ec2.SubnetType.PRIVATE,
+        // },
+        // {
+        //   cidrMask: 28,
+        //   name: 'rds',
+        //   subnetType: ec2.SubnetType.ISOLATED,
+        // }
+      ]
+    });
+    
     const securityGroup = new SecurityGroup(this, 'alfSecurityGroup', {
-      vpc: instanceVpc
+      vpc: instanceVpc,
+      securityGroupName: `secg-${props.stackName}`,
     })
 
     securityGroup.addIngressRule(Peer.anyIpv4(), Port.tcp(80));
@@ -95,7 +97,7 @@ sudo chown -R 999 logs
       machineImage: amznLinux,
       instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.LARGE),
       keyName: 'ec2dev',
-      instanceName: 'AlfCdkEc2Instance',
+      instanceName: props.stackName || 'AlfCdkEc2Instance',
       vpc: instanceVpc,
       securityGroup,
       userData: UserData.forLinux({
@@ -106,16 +108,46 @@ sudo chown -R 999 logs
     // console.debug("instanceProps: ", JSON.stringify(instanceProps));
     const instance = new Instance(this, 'AlfCdkEc2Instance', instanceProps);
 
+    // const cfnInstance = instance.node.defaultChild as CfnInstance;
+
+    // tslint:disable-next-line: forin
+    // for(const key in props.tags){
+    //   cfnInstance.tags.setTag(key, props.tags[key]);
+    // }
+    // cfnInstance.tags.setTag('userId', props?.instanceItem.userId || '');
+    // cfnInstance.tags.setTag('alfInstanceId', props?.instanceItem.alfInstanceId || '');
+    // cfnInstance.tags.setTag('alfType', JSON.stringify(props?.instanceItem.alfType) || '');
+    // cfnInstance.tags.setTag('tags', JSON.stringify(props?.instanceItem.tags) || '');
+
     const lb = new ApplicationLoadBalancer(this, 'LB', {
       vpc: instanceVpc,
       internetFacing: true,
       securityGroup
     });
 
-    const listener = lb.addListener('Listener', {
-      protocol: ApplicationProtocol.HTTP,
-      port: 80
-    })
+    let listener;
+
+    if(props?.customDomain){
+      listener = lb.addListener('Listener', {
+        protocol: ApplicationProtocol.HTTPS,
+        port: 443,
+        certificateArns: [props?.lb?.certArn || ''],
+      });
+
+      const zone = HostedZone.fromLookup(this, 'Zone', { domainName: props.customDomain.domainName });
+
+      // tslint:disable-next-line: no-unused-expression
+      new ARecord(this, 'InstanceAliasRecord', {
+        recordName: props.customDomain.domainName,
+        target: RecordTarget.fromAlias(new LoadBalancerTarget(lb)),
+        zone
+      });
+    } else {
+      listener = lb.addListener('Listener', {
+        protocol: ApplicationProtocol.HTTP,
+        port: 80
+      });
+    }
 
     listener.addTargets('Target', {
       targets: [new InstanceIdTarget(instance.instanceId)],

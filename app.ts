@@ -9,11 +9,14 @@ const pipelineAppProps: PipelineAppProps = {
   repositoryName: name,
   customStack: (scope, account) => {
     // console.log('echo = ' + JSON.stringify(account));
+    const tags = JSON.parse(process.env.tags || '{}');
     return new AlfCdkEc2Stack(scope, `${name}-${account.stage}`, {
       env: {
         region: account.region,
       },
-      stackName: `${name}-${account.stage}`,
+      gitRepo: process.env.gitRepo,
+      tags,
+      stackName: process.env.stackName || `${name}-${account.stage}`,
       stage: account.stage,
     })
   },
