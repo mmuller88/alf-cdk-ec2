@@ -1,12 +1,20 @@
 {
-    "availability-zones:account=981237193288:region=us-east-1": [
-        "us-east-1a",
-        "us-east-1b",
-        "us-east-1c"
-    ],
-    "availability-zones:account=981237193288:region=eu-central-1": [
-        "eu-central-1a",
-        "eu-central-1b",
-        "eu-central-1c"
-    ]
+  "availability-zones:account=981237193288:region=us-east-1": [
+    "us-east-1a",
+    "us-east-1b",
+    "us-east-1c"
+  ],
+  "availability-zones:account=981237193288:region=eu-central-1": [
+    "eu-central-1a",
+    "eu-central-1b",
+    "eu-central-1c"
+  ],
+  "hosted-zone:account=981237193288:domainName=i.dev.alfpro.net:region=eu-central-1": {
+    "Id": "/hostedzone/Z0847928PFMOCU700U4U",
+    "Name": "i.dev.alfpro.net."
+  },
+  "hosted-zone:account=981237193288:domainName=i.alfpro.net:region=us-east-1": {
+    "Id": "/hostedzone/Z00371764UBVAUANTU0U",
+    "Name": "i.alfpro.net."
   }
+}

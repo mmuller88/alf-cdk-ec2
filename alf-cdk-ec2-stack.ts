@@ -11,12 +11,13 @@ export interface AlfCdkEc2StackProps extends StackProps {
   stage: string;
   stackName: string;
   // tags?: string[];
-  lb?: {
-    certArn: string
-  },
+  // lb?: {
+  //   certArn: string
+  // },
   customDomain?: {
     hostedZoneId: string,
     domainName: string,
+    certArn: string,
   }
 }
 
@@ -127,21 +128,27 @@ sudo chown -R 999 logs
 
     let listener;
 
-    if(props?.customDomain){
+    if(props.customDomain){
       listener = lb.addListener('Listener', {
         protocol: ApplicationProtocol.HTTPS,
         port: 443,
-        certificateArns: [props?.lb?.certArn || ''],
+        certificateArns: [props.customDomain.certArn || ''],
       });
 
       const zone = HostedZone.fromLookup(this, 'Zone', { domainName: props.customDomain.domainName });
 
       // tslint:disable-next-line: no-unused-expression
-      new ARecord(this, 'InstanceAliasRecord', {
-        recordName: props.customDomain.domainName,
+      const record = new ARecord(this, 'InstanceAliasRecord', {
+        recordName: `${props.stackName}.${props.customDomain.domainName}`,
         target: RecordTarget.fromAlias(new LoadBalancerTarget(lb)),
         zone
       });
+
+      const customInstanceUrl = new CfnOutput(this, 'CustomInstanceUrl', {
+        value: record.domainName,
+      });
+      this.cfnOutputs['CustomInstanceUrl'] = customInstanceUrl;
+
     } else {
       listener = lb.addListener('Listener', {
         protocol: ApplicationProtocol.HTTP,
@@ -158,19 +165,16 @@ sudo chown -R 999 logs
     const instanceId = new CfnOutput(this, 'InstanceId', {
       value: instance.instanceId
     });
-
     this.cfnOutputs['InstanceId'] = instanceId;
 
     const instancePublicDnsName = new CfnOutput(this, 'InstancePublicDnsName', {
       value: instance.instancePublicDnsName
     });
-
     this.cfnOutputs['InstancePublicDnsName'] = instancePublicDnsName;
 
     const loadBalancerDnsName = new CfnOutput(this, 'LoadBalancerDnsName', {
       value: lb.loadBalancerDnsName
     });
-
     this.cfnOutputs['LoadBalancerDnsName'] = loadBalancerDnsName;
   }
 }
