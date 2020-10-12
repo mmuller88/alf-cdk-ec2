@@ -7,6 +7,23 @@ import { PipelineApp, PipelineAppProps } from 'alf-cdk-app-pipeline/pipeline-app
 const pipelineAppProps: PipelineAppProps = {
   branch: 'master',
   repositoryName: name,
+  accounts: [
+    {
+      id: '981237193288',
+      region: 'eu-central-1',
+      stage: 'dev',
+    },
+    {
+      id: '981237193288',
+      region: 'us-east-1',
+      stage: 'prod',
+    },
+  ],
+  buildAccount: {
+    id: '981237193288',
+    region: 'eu-central-1',
+    stage: 'dev',
+  },
   customStack: (scope, account) => {
     // console.log('echo = ' + JSON.stringify(account));
     const tags = JSON.parse(process.env.tags || '{}');
@@ -51,6 +68,7 @@ const pipelineAppProps: PipelineAppProps = {
     // Use 'curl' to GET the given URL and fail if it returns an error
     'sleep 180',
     'curl -Ssf $InstancePublicDnsName',
+    `curl -Ssf $CustomInstanceUrl`,
     'echo done!!!',
   ],
 };
