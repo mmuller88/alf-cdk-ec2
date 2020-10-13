@@ -66,7 +66,8 @@ const pipelineAppProps: PipelineAppProps = {
     'sleep 240',
     'curl -Ssf $InstancePublicDnsName',
     `curl -Ssf $CustomInstanceUrl`,
-    'echo done!!!',
+    // 'echo done! Delete all remaining Stacks!',
+    // `aws cloudformation delete-stack --stack-name itest123 --region ${account.region}`
   ],
 };
 
