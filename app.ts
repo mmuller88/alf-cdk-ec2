@@ -47,7 +47,7 @@ const pipelineAppProps: PipelineAppProps = {
         account: account.id,
         region: account.region,
       },
-      gitRepo: process.env.gitRepo || 'alf-ec2-1',
+      gitRepo: process.env.gitRepo || 'alf-cdk-ec2',
       tags,
       customDomain: {
         hostedZoneId: alfCdkSpecifics.hostedZoneId,
@@ -61,8 +61,8 @@ const pipelineAppProps: PipelineAppProps = {
   destroyStack: (_) => {
     return true;
   },
-  testCommands: (_) => [
-    // `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region} --debug`,
+  testCommands: (account) => [
+    `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region} --debug`,
     'sleep 180',
     'curl -Ssf $InstancePublicDnsName',
     'curl -Ssf $CustomInstanceUrl',
