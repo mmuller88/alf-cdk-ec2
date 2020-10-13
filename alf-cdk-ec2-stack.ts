@@ -54,8 +54,8 @@ Content-Disposition: attachment; filename="userdata.txt"
 #!/bin/bash
 echo "sudo halt" | at now + 55 minutes
 yum -y install git
-REPO=${props.gitRepo ? props.gitRepo : 'alf-cdk-ec2'}
-git clone https://@github.com/mmuller88/$REPO/usr/local/$REPO
+REPO=${props.gitRepo ? props.gitRepo : 'alf-ec2-1'}
+git clone https://@github.com/mmuller88/$REPO /usr/local/$REPO
 cd /usr/local/$REPO
 chmod +x init.sh && ./init.sh
 sudo chmod +x start.sh && ./start.sh
