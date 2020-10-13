@@ -62,10 +62,10 @@ const pipelineAppProps: PipelineAppProps = {
     return true;
   },
   testCommands: (account) => [
-    `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region} --debug`,
+    `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region}`,
     'sleep 180',
     'curl -Ssf $InstancePublicDnsName',
-    'curl -Ssf $CustomInstanceUrl',
+    // 'curl -Ssf $CustomInstanceUrl',
     // 'echo done! Delete all remaining Stacks!',
     // `aws cloudformation delete-stack --stack-name itest123 --region ${account.region}`
   ],
