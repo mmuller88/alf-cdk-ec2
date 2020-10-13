@@ -40,7 +40,7 @@ const pipelineAppProps: PipelineAppProps = {
         domainName: process.env.domainName || 'i.alfpro.net',
         certArn: process.env.certArn || 'arn:aws:acm:eu-central-1:981237193288:certificate/4fe684df-36da-4516-bd01-7fcc22337dff',
       })
-    }
+    };
 
     return new AlfCdkEc2Stack(scope, `${name}-${account.stage}`, {
       env: {
@@ -61,8 +61,8 @@ const pipelineAppProps: PipelineAppProps = {
   destroyStack: (_) => {
     return true;
   },
-  testCommands: (account) => [
-    `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region}`,
+  testCommands: (_) => [
+    // `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region} --debug`,
     'sleep 180',
     'curl -Ssf $InstancePublicDnsName',
     'curl -Ssf $CustomInstanceUrl',
