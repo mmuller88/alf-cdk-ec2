@@ -5,7 +5,7 @@ import { InstanceIdTarget } from '@aws-cdk/aws-elasticloadbalancingv2-targets';
 import { CustomStack } from 'alf-cdk-app-pipeline/custom-stack';
 import { ARecord, HostedZone, RecordTarget } from '@aws-cdk/aws-route53';
 import { LoadBalancerTarget } from '@aws-cdk/aws-route53-targets';
-import { PolicyStatement } from '@aws-cdk/aws-iam';
+// import { PolicyStatement } from '@aws-cdk/aws-iam';
 
 export interface AlfCdkEc2StackProps extends StackProps {
   gitRepo?: string;
