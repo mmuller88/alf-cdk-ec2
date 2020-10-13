@@ -23,7 +23,7 @@
     "standard-version": "^9.0.0"
   },
   "dependencies": {
-    "alf-cdk-app-pipeline": "github:mmuller88/alf-cdk-app-pipeline#master",
+    "alf-cdk-app-pipeline": "github:mmuller88/alf-cdk-app-pipeline#v0.0.7",
     "source-map-support": "^0.5.19"
   }
 }

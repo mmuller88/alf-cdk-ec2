@@ -58,11 +58,8 @@ const pipelineAppProps: PipelineAppProps = {
       stage: account.stage,
     })
   },
-  destroyStack: (_) => {
-    return false;
-  },
   testCommands: (account) => [
-    `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region}`,
+    `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region} --output text`,
     'sleep 180',
     `curl -Ssf $InstancePublicDnsName && aws cloudformation delete-stack --stack-name itest123 --region ${account.region}`,
     // 'curl -Ssf $CustomInstanceUrl',
