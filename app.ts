@@ -38,7 +38,7 @@ const pipelineAppProps: PipelineAppProps = {
       {
         hostedZoneId: process.env.hostedZoneId || 'Z00371764UBVAUANTU0U',
         domainName: process.env.domainName || 'i.alfpro.net',
-        certArn: process.env.certArn || 'arn:aws:acm:eu-central-1:981237193288:certificate/4fe684df-36da-4516-bd01-7fcc22337dff',
+        certArn: process.env.certArn || 'arn:aws:acm:us-east-1:981237193288:certificate/09d5c91e-6579-4189-882b-798301fb8fba',
       })
     };
 
@@ -64,7 +64,7 @@ const pipelineAppProps: PipelineAppProps = {
   testCommands: (account) => [
     `aws ec2 get-console-output --instance-id $InstanceId --region ${account.region}`,
     'sleep 180',
-    `curl -Ssf $InstancePublicDnsName || aws cloudformation delete-stack --stack-name itest123 --region ${account.region}`,
+    `curl -Ssf $InstancePublicDnsName && aws cloudformation delete-stack --stack-name itest123 --region ${account.region}`,
     // 'curl -Ssf $CustomInstanceUrl',
     // 'echo done! Delete all remaining Stacks!',
   ],
