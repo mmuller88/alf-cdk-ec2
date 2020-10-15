@@ -1,13 +1,15 @@
 {
   "name": "alf-cdk-ec2",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "cdk": "cdk",
-    "lint": "eslint --ext .ts ."
+    "lint": "eslint --ext .ts .",
+    "version": "standard-version",
+    "versionAsMinor": "standard-version --release-as minor"
   },
   "author": "Martin Mueller damadden88@googlemail.com",
   "license": "MIT",
